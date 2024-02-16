@@ -6,19 +6,25 @@ window.addEventListener('load', function () {
     canvas.height = 500;
 
     class InputHandler {
-        constructor(game){
+        constructor(game) {
             this.game = game;
             window.addEventListener('keydown', e => {
-                if (e.key === 'ArrowUp'){
+                if (((e.key === 'ArrowUp') ||
+                    (e.key === 'ArrowDown') ||
+                    (e.key === 'ArrowLeft') ||
+                    (e.key === 'ArrowRight')
+                ) && this.game.keys.indexOf(e.key) === -1) {
                     this.game.keys.push(e.key);
                 }
                 console.log(this.game.keys);
             });
             window.addEventListener('keyup', e => {
-                if (e.key ==='ArrowDown'){
-                    this.game.keys.push(e.key);
+                if (this.game.keys.indexOf(e.key) > -1) {
+                    this.game.keys.splice(this.game.keys.indexOf(e.key), 1);
                 }
-            });
+                console.log(this.game.keys);
+            }
+            );
         }
 
     }
@@ -35,10 +41,18 @@ window.addEventListener('load', function () {
             this.height = 190;
             this.x = 20;
             this.y = 100;
-            this.speedY = 1;
+            this.speedY = 0;
+            this.speedX = 0;
         }
         update() {
+            if (this.game.keys.includes('ArrowUp')) this.speedY = -1;
+            else if (this.game.keys.includes('ArrowDown')) this.speedY = 1;
+            else this.speedY = 0;
             this.y += this.speedY;
+            if (this.game.keys.includes('ArrowLeft')) this.speedX = -1;
+            else if (this.game.keys.includes('ArrowRight')) this.speedX = 1;
+            else this.speedX = 0;
+            this.x += this.speedX;
         }
         draw(context) {
             context.fillRect(this.x, this.y, this.width, this.height);
@@ -65,7 +79,8 @@ window.addEventListener('load', function () {
             this.keys = [];
         }
         update() {
-            this.player.update;
+            this.player.update();
+
         }
         draw(context) {
             this.player.draw(context);
@@ -73,7 +88,7 @@ window.addEventListener('load', function () {
     }
     const game = new Game(canvas.width, canvas.height);
     // animation loop
-    function animate() {
+    animate = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         game.update();
         game.draw(ctx);
