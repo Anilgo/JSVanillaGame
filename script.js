@@ -15,6 +15,12 @@ window.addEventListener('load', function () {
                     (e.key === 'ArrowRight')
                 ) && this.game.keys.indexOf(e.key) === -1) {
                     this.game.keys.push(e.key);
+                } 
+                else if (e.key === ' '){
+                    this.game.player.shootTop();
+                }
+                else if (e.key === 'b'){
+                    this.game.player.shootBottom();
                 }
                 console.log(this.game.keys);
             });
@@ -29,6 +35,23 @@ window.addEventListener('load', function () {
 
     }
     class Projectile {
+        constructor(game, x, y){
+            this.game = game;
+            this.x = x;
+            this.y = y;
+            this.width = 10;
+            this.height = 3;
+            this.speed = 15;
+            this.markedForDeletion = false;
+        }
+        update(){
+            this.x += this.speed;
+            if (this.x > this.game.width * 0.8) this.markedForDeletion = true;
+        }
+        draw(context){
+            context.fillStyle = 'yellow';
+            context.fillRect(this.x, this.y, this.width, this.height);
+        }
 
     }
     class Particle {
@@ -43,19 +66,36 @@ window.addEventListener('load', function () {
             this.y = 100;
             this.speedY = 0;
             this.speedX = 0;
+            this.maxSpeed = 2;
+            this.projectiles = [];
         }
         update() {
-            if (this.game.keys.includes('ArrowUp')) this.speedY = -1;
-            else if (this.game.keys.includes('ArrowDown')) this.speedY = 1;
+            if (this.game.keys.includes('ArrowUp')) this.speedY = -this.maxSpeed;
+            else if (this.game.keys.includes('ArrowDown')) this.speedY = this.maxSpeed;
             else this.speedY = 0;
             this.y += this.speedY;
-            if (this.game.keys.includes('ArrowLeft')) this.speedX = -1;
-            else if (this.game.keys.includes('ArrowRight')) this.speedX = 1;
+            if (this.game.keys.includes('ArrowLeft')) this.speedX = -this.maxSpeed;
+            else if (this.game.keys.includes('ArrowRight')) this.speedX = this.maxSpeed;
             else this.speedX = 0;
             this.x += this.speedX;
+            this.projectiles.forEach(projectile =>{
+                projectile.update();
+            } )          
+            this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
+            
         }
         draw(context) {
+            context.fillStyle = 'black';
             context.fillRect(this.x, this.y, this.width, this.height);
+            this,this.projectiles.forEach(projectile => {
+                projectile.draw(context);
+            });
+        }
+        shootTop(){
+            this.projectiles.push(new Projectile(this.game, this.x, this.y));
+        }
+        shootBottom(){
+            this.projectiles.push(new Projectile(this.game, this.x, this.y+120));
         }
     }
     class Enemy {
@@ -95,4 +135,5 @@ window.addEventListener('load', function () {
         requestAnimationFrame(animate);
     }
     animate();
+
 });
