@@ -15,11 +15,11 @@ window.addEventListener('load', function () {
                     (e.key === 'ArrowRight')
                 ) && this.game.keys.indexOf(e.key) === -1) {
                     this.game.keys.push(e.key);
-                } 
-                else if (e.key === ' '){
+                }
+                else if (e.key === ' ') {
                     this.game.player.shootTop();
                 }
-                else if (e.key === 'b'){
+                else if (e.key === 'b') {
                     this.game.player.shootBottom();
                 }
                 console.log(this.game.keys);
@@ -35,20 +35,20 @@ window.addEventListener('load', function () {
 
     }
     class Projectile {
-        constructor(game, x, y){
+        constructor(game, x, y) {
             this.game = game;
             this.x = x;
             this.y = y;
             this.width = 10;
             this.height = 3;
-            this.speed = 15;
+            this.speed = 5;
             this.markedForDeletion = false;
         }
-        update(){
+        update() {
             this.x += this.speed;
             if (this.x > this.game.width * 0.8) this.markedForDeletion = true;
         }
-        draw(context){
+        draw(context) {
             context.fillStyle = 'yellow';
             context.fillRect(this.x, this.y, this.width, this.height);
         }
@@ -70,6 +70,7 @@ window.addEventListener('load', function () {
             this.projectiles = [];
         }
         update() {
+            // Handle movement
             if (this.game.keys.includes('ArrowUp')) this.speedY = -this.maxSpeed;
             else if (this.game.keys.includes('ArrowDown')) this.speedY = this.maxSpeed;
             else this.speedY = 0;
@@ -78,24 +79,32 @@ window.addEventListener('load', function () {
             else if (this.game.keys.includes('ArrowRight')) this.speedX = this.maxSpeed;
             else this.speedX = 0;
             this.x += this.speedX;
-            this.projectiles.forEach(projectile =>{
+            // Handle projectiles
+            this.projectiles.forEach(projectile => {
                 projectile.update();
-            } )          
+            })
             this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
-            
+
         }
         draw(context) {
             context.fillStyle = 'black';
             context.fillRect(this.x, this.y, this.width, this.height);
-            this,this.projectiles.forEach(projectile => {
+            this, this.projectiles.forEach(projectile => {
                 projectile.draw(context);
             });
         }
-        shootTop(){
-            this.projectiles.push(new Projectile(this.game, this.x, this.y));
+        shootTop() {
+            if (this.game.ammo >= 1) {
+                this.projectiles.push(new Projectile(this.game, this.x, this.y));
+                this.game.ammo --;
+                console.log(this.game.ammo);
+            }
         }
-        shootBottom(){
-            this.projectiles.push(new Projectile(this.game, this.x, this.y+120));
+        shootBottom() {
+            if (this.game.ammo > 0) {
+                this.projectiles.push(new Projectile(this.game, this.x, this.y + 120));
+                this.game.ammo --;
+            }
         }
     }
     class Enemy {
@@ -117,9 +126,20 @@ window.addEventListener('load', function () {
             this.player = new Player(this);  //this refers to Game Class
             this.input = new InputHandler(this);
             this.keys = [];
+            this.ammo = 10;
+            this.maxAmmo = 25;
+            this.ammoTimer = 0;
+            this.ammoInterval = 124500;
         }
-        update() {
+        update(deltaTime) {
             this.player.update();
+            if (this.ammoTimer > this.ammoInterval){
+                if (this.ammo < this.maxAmmo) this.ammo++;
+                this.ammoTimer = 0;
+            } else {
+                this.ammoTimer += deltaTime;
+            }
+
 
         }
         draw(context) {
@@ -127,13 +147,16 @@ window.addEventListener('load', function () {
         }
     }
     const game = new Game(canvas.width, canvas.height);
+    let lastTime = 0;
     // animation loop
-    animate = () => {
+    animate = (timeStamp) => {   // requestAnimationFrame automatically passes TimeStamp to the function it calls
+        const deltaTime = timeStamp - lastTime;
+        lastTime = deltaTime;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        game.update();
+        game.update(deltaTime);
         game.draw(ctx);
         requestAnimationFrame(animate);
     }
-    animate();
+    animate(0);
 
 });
