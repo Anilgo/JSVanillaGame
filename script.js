@@ -108,8 +108,30 @@ window.addEventListener('load', function () {
         }
     }
     class Enemy {
-
+        constructor(game){
+            this.game = game;
+            this.x = this.game.width;
+            this.sppedX = Math.random() * -1.5 - 0.5;
+            this.markedForDeletion = false;
+        }
+        update(){
+            this.x += this.speedX;
+            if (this.x + this.width < 0) this.markedForDeletion = true;
+        }
+        draw(context){
+            context.fillStyle = 'red';
+            context.fillRect(this.x, this.y, this.width, this.height);
+        }
     }
+    class EnemyTypeOne extends Enemy{
+        constructor(game){
+            super(game);
+            this.width = 228;
+            this.height = 169;
+            this.y = Math.random() * (this.game.height * 0.9 - this.height);
+        }
+    }
+
     class Layer {
 
     }
@@ -144,6 +166,10 @@ window.addEventListener('load', function () {
             this.maxAmmo = 25;
             this.ammoTimer = 0;
             this.ammoInterval = 94500;
+            this.enemyTimer = 0;
+            this.enemyInterval = 1000;
+            this.enemies = [];
+            this.gameOver = false;
         }
         update(deltaTime) {
             this.player.update();
@@ -153,12 +179,29 @@ window.addEventListener('load', function () {
             } else {
                 this.ammoTimer += deltaTime;
             }
-
+            this.enemies.forEach(enemy => {
+                enemy.update();
+            });
+            this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
+            if (this.enemyTimer > this.enemyInterval) {
+                this.addEnemy();
+                this.enemyTimer = 0;
+            } else {
+                this.enemyTimer += deltaTime;
+            }
+            console.log(this.enemies);
 
         }
         draw(context) {
             this.player.draw(context);
             this.ui.draw(context);
+            this.enemies.forEach(enemy => {
+                enemy.draw(context)
+            });
+            
+        }
+        addEnemy(){
+            this.enemies.push(new EnemyTypeOne(this));
         }
     }
     const game = new Game(canvas.width, canvas.height);
