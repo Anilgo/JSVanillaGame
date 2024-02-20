@@ -171,6 +171,7 @@ window.addEventListener('load', function () {
             this.enemies = [];
             this.gameOver = false;
         }
+
         update(deltaTime) {
             this.player.update();
             if (this.ammoTimer > this.ammoInterval){
