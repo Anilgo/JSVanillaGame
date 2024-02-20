@@ -101,7 +101,7 @@ window.addEventListener('load', function () {
             }
         }
         shootBottom() {
-            if (this.game.ammo > 0) {
+            if (this.game.ammo >= 1 ) {
                 this.projectiles.push(new Projectile(this.game, this.x, this.y + 120));
                 this.game.ammo --;
             }
@@ -129,7 +129,7 @@ window.addEventListener('load', function () {
             this.ammo = 10;
             this.maxAmmo = 25;
             this.ammoTimer = 0;
-            this.ammoInterval = 124500;
+            this.ammoInterval = 324500;
         }
         update(deltaTime) {
             this.player.update();
