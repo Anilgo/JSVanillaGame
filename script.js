@@ -117,6 +117,19 @@ window.addEventListener('load', function () {
 
     }
     class UI {
+        constructor(game){
+            this.game = game;
+            this.fontSize = 25;
+            this.fontFamily = 'Helvetica';
+            this.color = 'white';
+        }
+        draw(context){
+            //ammo 
+            context.fill = this.color;
+            for (let i = 0; i < this.game.ammo; i++){
+                context.fillRect(20 + 5 * i, 50, 3, 20);
+            }
+        }
 
     }
     class Game {
@@ -125,11 +138,12 @@ window.addEventListener('load', function () {
             this.height = height;
             this.player = new Player(this);  //this refers to Game Class
             this.input = new InputHandler(this);
+            this.ui = new UI(this);
             this.keys = [];
             this.ammo = 10;
             this.maxAmmo = 25;
             this.ammoTimer = 0;
-            this.ammoInterval = 324500;
+            this.ammoInterval = 94500;
         }
         update(deltaTime) {
             this.player.update();
@@ -144,6 +158,7 @@ window.addEventListener('load', function () {
         }
         draw(context) {
             this.player.draw(context);
+            this.ui.draw(context);
         }
     }
     const game = new Game(canvas.width, canvas.height);
